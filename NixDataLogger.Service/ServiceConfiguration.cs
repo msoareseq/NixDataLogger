@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
 namespace NixDataLogger.Service
@@ -19,7 +20,7 @@ namespace NixDataLogger.Service
         public ServiceConfiguration()
         {
             DataReadIntervalSeconds = 60;
-            TagListPath = null;
+            TagListPath = "taglist.csv";
             LocalStorageConnectionString = "data.db";
             LocalBackupStoragePath = "data.bkp";
             LocalStorageRetentionDays = 30;
@@ -43,6 +44,8 @@ namespace NixDataLogger.Service
         {
             var options = new JsonSerializerOptions { WriteIndented = true };
             File.WriteAllText(fileName, JsonSerializer.Serialize(this, options));
+            JsonNode node = JsonNode.Parse(File.ReadAllText(fileName))!;
+
         }
     }
         

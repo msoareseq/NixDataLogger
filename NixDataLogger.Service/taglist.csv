@@ -1,1 +1,12 @@
-﻿
+﻿#
+# Tag List File
+#
+# Variable Name, Address, Group
+Variable1,"TestChannel.TestDevice.TestReadDouble", Group1
+Variable2,"TestChannel.TestDevice.TestReadFloat", Group1
+Variable3,"TestChannel.TestDevice.TestReadLong", Group1
+Variable4,"TestChannel.TestDevice.TestReadWord", Group1
+Variable5,"TestChannel.TestDevice.TestWriteDouble", Group2
+Variable6,"TestChannel.TestDevice.TestWriteFloat", Group2
+Variable7,"TestChannel.TestDevice.TestWriteLong", Group2
+Variable8,"TestChannel.TestDevice.TestWriteWord", Group2
