@@ -1,5 +1,5 @@
 ﻿#
-# Tag List File
+# Tag List File Example
 #
 # Variable Name, Address, Group
 Variable1,"TestChannel.TestDevice.TestReadDouble", Group1
