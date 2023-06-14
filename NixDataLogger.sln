@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33801.468
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NixDataLogger.Service", "NixDataLogger.Service\NixDataLogger.Service.csproj", "{324F50C0-8263-4FB5-A9DC-E3BF8E57B14F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NixDataLogger.ConsoleApp", "NixDataLogger.ConsoleApp\NixDataLogger.ConsoleApp.csproj", "{418746EE-4E5C-4E7F-93D3-13E584B0BF77}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{324F50C0-8263-4FB5-A9DC-E3BF8E57B14F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{324F50C0-8263-4FB5-A9DC-E3BF8E57B14F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{324F50C0-8263-4FB5-A9DC-E3BF8E57B14F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{324F50C0-8263-4FB5-A9DC-E3BF8E57B14F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{418746EE-4E5C-4E7F-93D3-13E584B0BF77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{418746EE-4E5C-4E7F-93D3-13E584B0BF77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{418746EE-4E5C-4E7F-93D3-13E584B0BF77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{418746EE-4E5C-4E7F-93D3-13E584B0BF77}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AC30C9DC-114F-4A93-A22B-235BDA2D7C1E}
+	EndGlobalSection
+EndGlobal
