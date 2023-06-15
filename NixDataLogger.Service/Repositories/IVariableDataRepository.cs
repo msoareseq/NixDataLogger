@@ -13,7 +13,6 @@ namespace NixDataLogger.Service.Repositories
         IEnumerable<VariableData> Get(DateTime from, DateTime to);
         IEnumerable<VariableData> Get(DateTime from, DateTime to, string tagName);
         IEnumerable<VariableData> GetAll();
-
         void Remove(DateTime from, DateTime to);
         void Remove(DateTime from, DateTime to, string tagName);
 

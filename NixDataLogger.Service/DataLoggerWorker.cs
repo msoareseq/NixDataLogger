@@ -1,4 +1,6 @@
 using Microsoft.VisualBasic;
+using NixDataLogger.Service.Repositories;
+using System.Diagnostics;
 
 namespace NixDataLogger.Service
 {
@@ -7,10 +9,16 @@ namespace NixDataLogger.Service
         private readonly ILogger<DataLoggerWorker> _logger;
         private readonly ServiceConfiguration serviceConfiguration;
 
+        private List<Tag> tagList;
+        private IVariableDataRepository dataRepository;
+
+
         public DataLoggerWorker(ILogger<DataLoggerWorker> logger, ServiceConfiguration serviceConfiguration)
         {
             _logger = logger;
             this.serviceConfiguration = serviceConfiguration;
+
+            tagList = GetTagList()?.ToList() ?? new List<Tag>();
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
