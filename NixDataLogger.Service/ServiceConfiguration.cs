@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace NixDataLogger.Service
 {
-    internal class ServiceConfiguration
+    public class ServiceConfiguration
     {
         public int DataReadIntervalSeconds { get; set; }
         public string? TagListPath { get; set; }

@@ -11,5 +11,6 @@ namespace NixDataLogger.Service
         DateTime TimeStamp { get; set; }
         object? Value { get; set; }
         int QualityCode { get; set; }
+        Tag? Tag { get; set; }
     }
 }
