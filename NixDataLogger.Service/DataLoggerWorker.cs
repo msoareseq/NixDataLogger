@@ -1,4 +1,5 @@
 using Microsoft.VisualBasic;
+using NixDataLogger.Service.Entities;
 using NixDataLogger.Service.Repositories;
 using System.Diagnostics;
 
@@ -10,7 +11,7 @@ namespace NixDataLogger.Service
         private readonly ServiceConfiguration serviceConfiguration;
 
         private List<Tag> tagList;
-        private IVariableDataRepository dataRepository;
+        private ITagDataRepository dataRepository;
 
 
         public DataLoggerWorker(ILogger<DataLoggerWorker> logger, ServiceConfiguration serviceConfiguration)
