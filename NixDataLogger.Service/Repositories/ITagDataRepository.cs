@@ -13,7 +13,7 @@ namespace NixDataLogger.Service.Repositories
         int InsertBulk(IEnumerable<TagData> variableData, string tagName);
         IEnumerable<TagData> Get(DateTime from, DateTime to);
         IEnumerable<TagData> Get(DateTime from, DateTime to, string tagName);
-        IEnumerable<TagData> GetAll();
+        IEnumerable<TagData> GetAll(string tagName);
         int RemovePeriod(DateTime from, DateTime to);
         int RemovePeriod(DateTime from, DateTime to, string tagName);
         int RemoveAll();

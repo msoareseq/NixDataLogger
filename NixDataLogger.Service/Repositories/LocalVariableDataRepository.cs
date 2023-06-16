@@ -15,7 +15,6 @@ namespace NixDataLogger.Service.Repositories
         public LocalVariableDataRepository(string connectionString)
         {
             db = new LiteDatabase(connectionString);
-            db.Pragma("utc_date", true);
         }
 
         public IEnumerable<TagData> Get(DateTime from, DateTime to)
@@ -28,9 +27,10 @@ namespace NixDataLogger.Service.Repositories
             throw new NotImplementedException();
         }
 
-        public IEnumerable<TagData> GetAll()
+        public IEnumerable<TagData> GetAll(string tagName)
         {
-            throw new NotImplementedException();
+            var col = db.GetCollection<TagData>(tagName);
+            return col.FindAll();
         }
 
         public int Insert(TagData variableData, string tagName)
@@ -52,7 +52,8 @@ namespace NixDataLogger.Service.Repositories
 
         public int RemoveById(int id, string tagName)
         {
-            throw new NotImplementedException();
+            var col = db.GetCollection<TagData>(tagName);
+            return col.DeleteMany(x => x.TagDataId == id);
         }
 
         public int RemoveByIds(IEnumerable<int> ids, string tagName)
@@ -77,9 +78,11 @@ namespace NixDataLogger.Service.Repositories
             int totalRemoved = 0;
             foreach (var colName in colNames)
             {
-                if (colName.Contains('$')) continue;
+                if (colName.Contains('$')) continue; // Ignores a System Collection (Read Only)
+
                 var col = db.GetCollection<TagData>(colName);
                 totalRemoved += col.DeleteMany(x => x.TimeStamp >= from && x.TimeStamp <= to);
+                db.Rebuild();
             }
             return totalRemoved;
         }
