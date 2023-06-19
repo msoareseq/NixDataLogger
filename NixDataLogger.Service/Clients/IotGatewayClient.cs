@@ -39,7 +39,7 @@ namespace NixDataLogger.Service.Clients
                 yield return new TagData()
                 {
                     TagName = tag.TagName,
-                    TimeStamp = DateTime.Now,
+                    Timestamp = DateTime.Now,
                     QualityCode = (response!.ReadResults![0].Success ? 1 : 0),
                     Value = response.ReadResults![0].Value,
                 };

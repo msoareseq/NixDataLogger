@@ -1,4 +1,5 @@
 using Microsoft.VisualBasic;
+using NixDataLogger.Service.Clients;
 using NixDataLogger.Service.Entities;
 using NixDataLogger.Service.Repositories;
 using System.Diagnostics;
@@ -9,9 +10,11 @@ namespace NixDataLogger.Service
     {
         private readonly ILogger<DataLoggerWorker> _logger;
         private readonly ServiceConfiguration serviceConfiguration;
+        private readonly HttpClient httpClient;
 
         private List<Tag> tagList;
         private ITagDataRepository dataRepository;
+        private IApiClient apiClient;
 
 
         public DataLoggerWorker(ILogger<DataLoggerWorker> logger, ServiceConfiguration serviceConfiguration)
@@ -20,6 +23,22 @@ namespace NixDataLogger.Service
             this.serviceConfiguration = serviceConfiguration;
 
             tagList = GetTagList()?.ToList() ?? new List<Tag>();
+
+            dataRepository = new LocalVariableDataRepository(serviceConfiguration.LocalStorageConnectionString!);
+            
+            httpClient = new HttpClient();
+            httpClient.Timeout = TimeSpan.FromSeconds(10);
+
+            
+            if (serviceConfiguration.EnableSimulationMode)
+            {
+                apiClient = new SimClient();
+            }
+            else
+            {
+                apiClient = new IotGatewayClient(httpClient, serviceConfiguration.ReadEndpoint!);
+            }
+            
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -27,8 +46,9 @@ namespace NixDataLogger.Service
             while (!stoppingToken.IsCancellationRequested)
             {
                 _logger.LogInformation("Reading tags at: {time}", DateTimeOffset.Now);
-
-
+                
+                var resultData = ReadTagData();
+                SaveLocalData(resultData);
 
                 await Task.Delay(serviceConfiguration.DataReadIntervalSeconds * 1000, stoppingToken);
             }
@@ -55,8 +75,19 @@ namespace NixDataLogger.Service
 
                 yield return tagResult;
             }
-            
-            
+        }
+
+        private void SaveLocalData(IEnumerable<TagData> tagData)
+        {
+            foreach (TagData data in tagData)
+            {
+                dataRepository.Insert(data, data.TagName!);
+            }
+        }
+
+        private IEnumerable<TagData> ReadTagData()
+        {
+            return apiClient.GetTagData(tagList);
         }
     }
 }
