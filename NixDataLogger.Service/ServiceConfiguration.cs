@@ -15,6 +15,7 @@ namespace NixDataLogger.Service
         public bool SyncRemote { get; set; }
         public int SyncIntervalHours { get; set; }
         public bool EnableSimulationMode { get; set; }
+        public string? ReadEndpoint { get; set; }
 
 
         public ServiceConfiguration()
