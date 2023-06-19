@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using RestSharp;
 using NixDataLogger.Service.Models;
+using System.Security.Cryptography.Xml;
 
 namespace NixDataLogger.Service.Clients
 {
@@ -28,21 +29,38 @@ namespace NixDataLogger.Service.Clients
 
         public IEnumerable<TagData> GetTagData(IEnumerable<Tag> tags)
         {
-            foreach (Tag tag in tags)
+
+            var groups = tags.GroupBy(x => x.Group);
+
+            if (groups == null)
+            {
+                throw new ArgumentNullException(nameof(groups));
+            }
+
+            foreach (var group in groups)
             {
                 RestRequest request = new RestRequest(readEndpoint, Method.Get);
-                request.AddParameter("ids", tag.Address);
+
+                foreach (Tag tag in group)
+                {
+                    request.AddParameter("ids", tag.Address);
+                }
+
                 var response = client.Get<IotGatewayResponse>(request);
 
-                if (response == null) continue;
+                if (response == null || response.ReadResults == null) continue;
 
-                yield return new TagData()
+                foreach (var result in response.ReadResults!)
                 {
-                    TagName = tag.TagName,
-                    Timestamp = DateTime.Now,
-                    QualityCode = (response!.ReadResults![0].Success ? 1 : 0),
-                    Value = response.ReadResults![0].Value,
-                };
+                    yield return new TagData()
+                    {
+                        TagName = tags.First(x => x.Address == result.Id).TagName,
+                        Timestamp = DateTime.Now,
+                        QualityCode = (result.Success ? 1 : 0),
+                        Value = result.Value,
+                    };
+                }
+
             }
         }
     }

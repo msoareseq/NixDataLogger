@@ -81,7 +81,7 @@ namespace NixDataLogger.Service.Repositories
                 if (colName.Contains('$')) continue; // Ignores a System Collection (Read Only)
 
                 var col = db.GetCollection<TagData>(colName);
-                totalRemoved += col.DeleteMany(x => x.TimeStamp >= from && x.TimeStamp <= to);
+                totalRemoved += col.DeleteMany(x => x.Timestamp >= from && x.Timestamp <= to);
                 db.Rebuild();
             }
             return totalRemoved;
@@ -90,7 +90,7 @@ namespace NixDataLogger.Service.Repositories
         public int RemovePeriod(DateTime from, DateTime to, string tagName)
         {
             var col = db.GetCollection<TagData>(tagName);
-            return col.DeleteMany(x => x.TimeStamp >= from && x.TimeStamp <= to);
+            return col.DeleteMany(x => x.Timestamp >= from && x.Timestamp <= to);
         }
     }
 }
