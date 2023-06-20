@@ -1,7 +1,9 @@
 ﻿#
 # Tag List File Example
 #
-# Variable Name, Address, Group
+# 
+#
+# Variable Name, Address, Group, Type
 Variable1,"TestChannel.TestDevice.TestReadDouble", Group1
 Variable2,"TestChannel.TestDevice.TestReadFloat", Group1
 Variable3,"TestChannel.TestDevice.TestReadLong", Group1

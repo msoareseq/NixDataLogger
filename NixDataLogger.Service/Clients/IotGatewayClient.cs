@@ -29,7 +29,6 @@ namespace NixDataLogger.Service.Clients
 
         public IEnumerable<TagData> GetTagData(IEnumerable<Tag> tags)
         {
-
             var groups = tags.GroupBy(x => x.Group);
 
             if (groups == null)

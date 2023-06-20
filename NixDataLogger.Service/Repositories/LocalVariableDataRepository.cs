@@ -8,13 +8,19 @@ using NixDataLogger.Service.Entities;
 
 namespace NixDataLogger.Service.Repositories
 {
-    internal class LocalVariableDataRepository : ITagDataRepository
+    internal class LocalVariableDataRepository : ITagDataRepository, IDisposable
     {
         public LiteDatabase db;
 
         public LocalVariableDataRepository(string connectionString)
         {
             db = new LiteDatabase(connectionString);
+            
+        }
+
+        public void Dispose()
+        {
+            db.Dispose();
         }
 
         public IEnumerable<TagData> Get(DateTime from, DateTime to)
@@ -91,6 +97,11 @@ namespace NixDataLogger.Service.Repositories
         {
             var col = db.GetCollection<TagData>(tagName);
             return col.DeleteMany(x => x.Timestamp >= from && x.Timestamp <= to);
+        }
+
+        public void Save()
+        {
+            db.Checkpoint();
         }
     }
 }

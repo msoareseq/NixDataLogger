@@ -28,25 +28,39 @@ namespace NixDataLogger.Service
             RemoteStorageConnectionString = null;
             SyncRemote = false;
             SyncIntervalHours = 24;
-            EnableSimulationMode = false;
+            EnableSimulationMode = true;
         }
 
-        public static ServiceConfiguration LoadServiceConfiguration(string fileName)
+        public static ServiceConfiguration? LoadServiceConfiguration(string fileName)
         {
-            if (!File.Exists(fileName)) return new ServiceConfiguration();
+            if (!File.Exists(fileName)) return null;
             
             var result = JsonSerializer.Deserialize<ServiceConfiguration>(File.ReadAllText(fileName));
 
-            return result ?? new ServiceConfiguration();
+            return result;
 
         }
 
-        public void SaveServiceConfiguration(string fileName)
+        public void SaveToFile(string fileName)
         {
             var options = new JsonSerializerOptions { WriteIndented = true };
             File.WriteAllText(fileName, JsonSerializer.Serialize(this, options));
-            JsonNode node = JsonNode.Parse(File.ReadAllText(fileName))!;
+        }
 
+        public void LoadFromFile(string fileName)
+        {
+            var sc = LoadServiceConfiguration(fileName) ?? throw new Exception("Service configuration file not found or malformed.");
+
+            DataReadIntervalSeconds = sc.DataReadIntervalSeconds;
+            TagListPath = sc.TagListPath;
+            LocalStorageConnectionString = sc.LocalStorageConnectionString;
+            LocalBackupStoragePath = sc.LocalBackupStoragePath;
+            LocalStorageRetentionDays = sc.LocalStorageRetentionDays;
+            RemoteStorageConnectionString = sc.RemoteStorageConnectionString;
+            SyncRemote = sc.SyncRemote;
+            SyncIntervalHours = sc.SyncIntervalHours;
+            EnableSimulationMode = sc.EnableSimulationMode;
+            ReadEndpoint = sc.ReadEndpoint;
         }
     }
         

@@ -7,7 +7,7 @@ using NixDataLogger.Service.Entities;
 
 namespace NixDataLogger.Service.Repositories
 {
-    internal interface ITagDataRepository
+    internal interface ITagDataRepository : IDisposable
     {
         int Insert(TagData variableData, string tagName);
         int InsertBulk(IEnumerable<TagData> variableData, string tagName);
@@ -20,7 +20,7 @@ namespace NixDataLogger.Service.Repositories
         int RemoveByTagName(string tagName);
         int RemoveById(int id, string tagName);
         int RemoveByIds(IEnumerable<int> ids, string tagName);
-
+        void Save();
 
     }
 }

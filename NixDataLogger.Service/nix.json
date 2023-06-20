@@ -1,0 +1,12 @@
+{
+	"DataReadIntervalSeconds": 60,
+	"TagListPath": "taglist.csv",
+	"LocalStorageConnectionString": "Filename=data.db;Connection=shared",
+	"LocalBackupStoragePath": "data.bkp",
+	"LocalStorageRetentionDays": 30,
+	"RemoteStorageConnectionString": "postgres://hbuoqcbu:paDJyeNcYqNeem3su8bcgI-elWRK3Q60@silly.db.elephantsql.com/hbuoqcbu",
+	"SyncRemote": false,
+	"SyncIntervalHours": 1,
+	"EnableSimulationMode": false,
+	"ReadEndpoint": "http://172.28.8.243:39320/iotgateway/read"
+}

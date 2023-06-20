@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using Microsoft.VisualBasic;
 using NixDataLogger.Service.Clients;
 using NixDataLogger.Service.Entities;
@@ -17,32 +18,32 @@ namespace NixDataLogger.Service
         private IApiClient apiClient;
 
 
-        public DataLoggerWorker(ILogger<DataLoggerWorker> logger, ServiceConfiguration serviceConfiguration)
+        public DataLoggerWorker(ILogger<DataLoggerWorker> logger, IOptions<ServiceConfiguration> serviceConfiguration)
         {
             _logger = logger;
-            this.serviceConfiguration = serviceConfiguration;
+            this.serviceConfiguration = serviceConfiguration.Value;
 
-            _logger.LogInformation("Reading tags from: {path}", serviceConfiguration.TagListPath);
+            _logger.LogInformation("Reading tags from: {path}", this.serviceConfiguration.TagListPath);
             tagList = GetTagList()?.ToList() ?? new List<Tag>();
             _logger.LogInformation("Found {count} tags", tagList.Count);
 
 
-            _logger.LogInformation("Saving data to: {path}", serviceConfiguration.LocalStorageConnectionString);
-            dataRepository = new LocalVariableDataRepository(serviceConfiguration.LocalStorageConnectionString!);
+            _logger.LogInformation("Saving data to: {path}", this.serviceConfiguration.LocalStorageConnectionString);
+            dataRepository = new LocalVariableDataRepository(this.serviceConfiguration.LocalStorageConnectionString!);
             
             httpClient = new HttpClient();
             httpClient.Timeout = TimeSpan.FromSeconds(10);
 
             
-            _logger.LogInformation("Simulation mode: {mode}", serviceConfiguration.EnableSimulationMode);
-            if (serviceConfiguration.EnableSimulationMode)
+            _logger.LogInformation("Simulation mode: {mode}", this.serviceConfiguration.EnableSimulationMode);
+            if (this.serviceConfiguration.EnableSimulationMode)
             {
                 apiClient = new SimClient();
             }
             else
             {
-                apiClient = new IotGatewayClient(httpClient, serviceConfiguration.ReadEndpoint!);
-                _logger.LogInformation("Reading data from: {endpoint}", serviceConfiguration.ReadEndpoint);
+                apiClient = new IotGatewayClient(httpClient, this.serviceConfiguration.ReadEndpoint!);
+                _logger.LogInformation("Reading data from: {endpoint}", this.serviceConfiguration.ReadEndpoint);
             }
             
         }
@@ -61,17 +62,27 @@ namespace NixDataLogger.Service
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error reading and writing tags");
+                    _logger.LogError(ex, "Error reading and writing tags");                    
                 }
 
                 await Task.Delay(serviceConfiguration.DataReadIntervalSeconds * 1000, stoppingToken);
             }
         }
 
+        public override async Task StopAsync(CancellationToken stoppingToken)
+        {
+            _logger.LogInformation("Data logger service is stopping");
+            dataRepository.Dispose();
+            await base.StopAsync(stoppingToken);
+        }
+
         private IEnumerable<Tag>? GetTagList()
         {
-            
-            if (serviceConfiguration.TagListPath == null || !File.Exists(serviceConfiguration.TagListPath)) yield return null!;
+
+            if (serviceConfiguration.TagListPath == null || !File.Exists(serviceConfiguration.TagListPath))
+            {
+                throw new FileNotFoundException("Tag list file not found");
+            }
 
             string[] tags = File.ReadAllLines(serviceConfiguration.TagListPath!);
             foreach (string tag in tags)
@@ -96,6 +107,7 @@ namespace NixDataLogger.Service
             foreach (TagData data in tagData)
             {
                 dataRepository.Insert(data, data.TagName!);
+                dataRepository.Save();
             }
         }
 
