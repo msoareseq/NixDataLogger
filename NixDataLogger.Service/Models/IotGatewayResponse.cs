@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json.Serialization;
+using NixDataLogger.Service.Clients;
 
 namespace NixDataLogger.Service.Models
 {
@@ -26,7 +27,8 @@ namespace NixDataLogger.Service.Models
             public string? Result { get; set; }
             
             [JsonPropertyName("v")]
-            public string? Value { get; set; }
+            [JsonConverter(typeof(TagValueJsonConverter))]
+            public object? Value { get; set; }
 
             [JsonPropertyName("t")]
             public long Timestamp { get; set; }

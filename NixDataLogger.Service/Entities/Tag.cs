@@ -16,6 +16,14 @@ namespace NixDataLogger.Service.Entities
         public string? Group { get; set; }
         public TagType DataType { get; set; }
 
+        public bool IsNumeric
+        {
+            get
+            {
+                return (int)DataType < 3;
+            }
+        }
+
         public void ParseTagType(string tagType)
         {
             switch (tagType.ToLower())
@@ -59,6 +67,7 @@ namespace NixDataLogger.Service.Entities
             }
             throw new Exception("Invalid tag type");
         }
+        
     }
 
 
