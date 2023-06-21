@@ -42,7 +42,7 @@ namespace NixDataLogger.Service
             }
             else
             {
-                apiClient = new IotGatewayClient(httpClient, this.serviceConfiguration.ReadEndpoint!);
+                apiClient = new IotGatewayClient(httpClient, this.serviceConfiguration.ReadEndpoint!, logger);
                 _logger.LogInformation("Reading data from: {endpoint}", this.serviceConfiguration.ReadEndpoint);
             }
             
@@ -89,13 +89,13 @@ namespace NixDataLogger.Service
             {
                 if (tag.StartsWith("#")) continue;
                 string[] tagParts = tag.Split(',');
-                if (tagParts.Length != 3) continue;
+                if (tagParts.Length != 4) continue;
 
                 Tag tagResult = new Tag()
                 {
-                    TagName = tagParts[0],
-                    Address = tagParts[1],
-                    Group = tagParts[2]
+                    TagName = tagParts[0].Trim(),
+                    Address = tagParts[1].Trim(),
+                    Group = tagParts[2].Trim()
                 };
 
                 yield return tagResult;

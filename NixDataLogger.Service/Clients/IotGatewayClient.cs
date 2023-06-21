@@ -14,17 +14,20 @@ namespace NixDataLogger.Service.Clients
     {
         RestClient client;
         string readEndpoint;
+        readonly ILogger<DataLoggerWorker> logger;
 
-        public IotGatewayClient(string readEndpoint)
+        public IotGatewayClient(string readEndpoint, ILogger<DataLoggerWorker> logger)
         {
             client = new RestClient();
             this.readEndpoint = readEndpoint;
+            this.logger = logger;
         }
 
-        public IotGatewayClient(HttpClient httpClient, string readEndpoint)
+        public IotGatewayClient(HttpClient httpClient, string readEndpoint, ILogger<DataLoggerWorker> logger)
         {
             client = new RestClient(httpClient);
             this.readEndpoint = readEndpoint;
+            this.logger = logger;
         }
 
         public IEnumerable<TagData> GetTagData(IEnumerable<Tag> tags)
@@ -51,6 +54,12 @@ namespace NixDataLogger.Service.Clients
 
                 foreach (var result in response.ReadResults!)
                 {
+                    if (!result.Success)
+                    {
+                        logger.LogError("Error reading tag {id} - {result}", result.Id, result.Result);
+                        continue;
+                    }
+                                        
                     yield return new TagData()
                     {
                         TagName = tags.First(x => x.Address == result.Id).TagName,

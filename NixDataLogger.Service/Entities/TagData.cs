@@ -11,7 +11,7 @@ namespace NixDataLogger.Service.Entities
         public int TagDataId { get; set; }
         public string? TagName { get; set; }
         public DateTime Timestamp { get; set; }
-        public string? Value { get; set; }
+        public object? Value { get; set; }
         public int QualityCode { get; set; }
     }
 }

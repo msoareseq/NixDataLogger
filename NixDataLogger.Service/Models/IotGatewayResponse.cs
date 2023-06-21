@@ -29,7 +29,7 @@ namespace NixDataLogger.Service.Models
             public string? Value { get; set; }
 
             [JsonPropertyName("t")]
-            public int Timestamp { get; set; }
+            public long Timestamp { get; set; }
 
         }
 

@@ -16,7 +16,7 @@ namespace NixDataLogger.Service.Clients
                 yield return new TagData()
                 {
                     TagName = tag.TagName,
-                    Value = new Random().NextDouble(),
+                    Value = new Random().NextDouble().ToString(),
                     Timestamp = DateTime.Now,
                     QualityCode = 1,                     
                 };

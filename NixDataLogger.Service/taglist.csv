@@ -4,11 +4,11 @@
 # 
 #
 # Variable Name, Address, Group, Type
-Variable1,"TestChannel.TestDevice.TestReadDouble", Group1, Double
-Variable2,"TestChannel.TestDevice.TestReadFloat", Group1, Float
-Variable3,"TestChannel.TestDevice.TestReadLong", Group1, Integer
-Variable4,"TestChannel.TestDevice.TestReadWord", Group1, Integer
-Variable5,"TestChannel.TestDevice.TestWriteDouble", Group2, Double
-Variable6,"TestChannel.TestDevice.TestWriteFloat", Group2, Float
-Variable7,"TestChannel.TestDevice.TestWriteLong", Group2, Integer
-Variable8,"TestChannel.TestDevice.TestWriteWord", Group2, Integer
+Variable1,TestChannel.TestDevice.TestReadDouble, Group1, Double
+Variable2,TestChannel.TestDevice.TestReadFloat, Group1, Float
+Variable3,TestChannel.TestDevice.TestReadLong, Group1, Integer
+Variable4,TestChannel.TestDevice.TestReadWord, Group1, Integer
+Variable5,TestChannel.TestDevice.TestWriteDouble, Group2, Double
+Variable6,TestChannel.TestDevice.TestWriteFloat, Group2, Float
+Variable7,TestChannel.TestDevice.TestWriteLong, Group2, Integer
+Variable8,TestChannel.TestDevice.TestWriteWord, Group2, Integer

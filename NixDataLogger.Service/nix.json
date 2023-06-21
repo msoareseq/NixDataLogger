@@ -1,5 +1,5 @@
 {
-	"DataReadIntervalSeconds": 60,
+	"DataReadIntervalSeconds": 10,
 	"TagListPath": "taglist.csv",
 	"LocalStorageConnectionString": "Filename=data.db;Connection=shared",
 	"LocalBackupStoragePath": "data.bkp",
@@ -8,5 +8,5 @@
 	"SyncRemote": false,
 	"SyncIntervalHours": 1,
 	"EnableSimulationMode": false,
-	"ReadEndpoint": "http://172.28.8.243:39320/iotgateway/read"
+	"ReadEndpoint": "http://172.22.111.31:39320/iotgateway/read"
 }
