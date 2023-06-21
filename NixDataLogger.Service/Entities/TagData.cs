@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace NixDataLogger.Service.Entities
 {
-    public class TagData<T>
+    public class TagData
     {
         public int TagDataId { get; set; }
         public string? TagName { get; set; }
         public DateTime Timestamp { get; set; }
-        public T? Value { get; set; }
+        public string? Value { get; set; }
         public int QualityCode { get; set; }
     }
 }
