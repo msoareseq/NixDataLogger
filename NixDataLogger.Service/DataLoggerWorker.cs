@@ -15,6 +15,7 @@ namespace NixDataLogger.Service
 
         private List<Tag> tagList;
         private ITagDataRepository dataRepository;
+        private ITagRepository tagRepository;
         private IApiClient apiClient;
 
 
@@ -22,9 +23,10 @@ namespace NixDataLogger.Service
         {
             _logger = logger;
             this.serviceConfiguration = serviceConfiguration.Value;
+            tagRepository = new TagRepository(this.serviceConfiguration);
 
             _logger.LogInformation("Reading tags from: {path}", this.serviceConfiguration.TagListPath);
-            tagList = GetTagList()?.ToList() ?? new List<Tag>();
+            tagList = tagRepository.GetTagList()?.ToList() ?? new List<Tag>();
             _logger.LogInformation("Found {count} tags", tagList.Count);
 
 
@@ -52,7 +54,7 @@ namespace NixDataLogger.Service
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                _logger.LogInformation("Reading tags at: {time}", DateTimeOffset.Now);
+                _logger.LogInformation("Reading {endpoint}: {time}", serviceConfiguration.ReadEndpoint, DateTimeOffset.Now);
                 
                 try
                 {
@@ -75,33 +77,7 @@ namespace NixDataLogger.Service
             dataRepository.Dispose();
             await base.StopAsync(stoppingToken);
         }
-
-        private IEnumerable<Tag>? GetTagList()
-        {
-
-            if (serviceConfiguration.TagListPath == null || !File.Exists(serviceConfiguration.TagListPath))
-            {
-                throw new FileNotFoundException("Tag list file not found");
-            }
-
-            string[] tags = File.ReadAllLines(serviceConfiguration.TagListPath!);
-            foreach (string tag in tags)
-            {
-                if (tag.StartsWith("#")) continue;
-                string[] tagParts = tag.Split(',');
-                if (tagParts.Length != 4) continue;
-
-                Tag tagResult = new Tag()
-                {
-                    TagName = tagParts[0].Trim(),
-                    Address = tagParts[1].Trim(),
-                    Group = tagParts[2].Trim()
-                };
-
-                yield return tagResult;
-            }
-        }
-
+                
         private void SaveLocalData(IEnumerable<TagData> tagData)
         {
             foreach (TagData data in tagData)
