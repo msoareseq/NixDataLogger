@@ -15,7 +15,6 @@ namespace NixDataLogger.Service.Repositories
         public LocalVariableDataRepository(string connectionString)
         {
             db = new LiteDatabase(connectionString);
-            
         }
 
         public void Dispose()

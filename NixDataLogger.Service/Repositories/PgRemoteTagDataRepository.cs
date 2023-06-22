@@ -28,22 +28,66 @@ namespace NixDataLogger.Service.Repositories
 
         public IEnumerable<TagData> Get(DateTime from, DateTime to, string tagName)
         {
-            throw new NotImplementedException();
+            string sql = @"SELECT * FROM #tablename# WHERE ts >= $1 AND ts <= $2";
+            sql = sql.Replace("#tablename#", GetTagTableName(tagName));
+            
+            var cmd = dataSource.CreateCommand(sql);
+            
+            cmd.Parameters.Add(from);
+            cmd.Parameters.Add(to);
+            
+            var reader = cmd.ExecuteReader();
+            
+            while (reader.Read())
+            {
+                yield return new TagData()
+                {
+                    TagDataId = reader.GetInt32(0),
+                    TagName = tagName,
+                    Timestamp = reader.GetDateTime(2),
+                    Value = reader.GetValue(3),
+                    QualityCode = reader.GetInt32(4)
+                };
+            }
         }
 
         public IEnumerable<TagData> GetAll(string tagName)
         {
-            throw new NotImplementedException();
+            return Get(DateTime.MinValue, DateTime.MaxValue, tagName);
         }
 
         public int Insert(TagData variableData, string tagName)
         {
-            throw new NotImplementedException();
+            string sql = @"INSERT INTO #tablename# (ts, tag_value, quality) VALUES $1, $2, $3";
+            sql = sql.Replace("#tablename#", GetTagTableName(tagName));
+
+            var cmd = dataSource.CreateCommand(sql);
+            cmd.Parameters.Add(variableData.Timestamp);
+            cmd.Parameters.Add(variableData.Value ?? DBNull.Value);
+            cmd.Parameters.Add(variableData.QualityCode);
+
+            return cmd.ExecuteNonQuery();
         }
 
         public int InsertBulk(IEnumerable<TagData> variableData, string tagName)
         {
-            throw new NotImplementedException();
+            var batch = dataSource.CreateBatch();
+            
+            foreach (var data in variableData)
+            {
+                string sql = @"INSERT INTO #tablename# (ts, tag_value, quality) VALUES $1, $2, $3";
+                sql = sql.Replace("#tablename#", GetTagTableName(tagName));
+                
+                var batchCmd = new NpgsqlBatchCommand(sql);
+                batchCmd.Parameters.Add(data.Timestamp);
+                batchCmd.Parameters.Add(data.Value ?? DBNull.Value);
+                batchCmd.Parameters.Add(data.QualityCode);
+                
+                batch.BatchCommands.Add(batchCmd);
+            }
+
+            return batch.ExecuteNonQuery();
+
         }
 
         public int RemoveAll()
@@ -91,7 +135,21 @@ namespace NixDataLogger.Service.Repositories
                                         tag_type INT NOT NULL
                                         )";
 
-            string createTagDataSql = @"CREATE TABLE IF NOT EXISTS #tagdata_table# (
+            string createTagDataNumericSql = @"CREATE TABLE IF NOT EXISTS #tagdata_table# (
+                                        id BIGSERIAL PRIMARY KEY,
+                                        ts TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+                                        tag_value NUMERIC,
+                                        tag_quality INT NOT NULL
+                                        )";
+
+            string createTagDataStringSql = @"CREATE TABLE IF NOT EXISTS #tagdata_table# (
+                                        id BIGSERIAL PRIMARY KEY,
+                                        ts TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+                                        tag_value VARCHAR(50),
+                                        tag_quality INT NOT NULL
+                                        )";
+
+            string createTagDataBooleanSql = @"CREATE TABLE IF NOT EXISTS #tagdata_table# (
                                         id BIGSERIAL PRIMARY KEY,
                                         ts TIMESTAMP WITHOUT TIME ZONE NOT NULL,
                                         tag_value NUMERIC,
@@ -104,9 +162,27 @@ namespace NixDataLogger.Service.Repositories
             foreach (var tag in tagList)
             {
                 if (tag.Group == null || tag.Group == string.Empty || tag.TagName == null || tag.TagName == string.Empty) continue;
-                cmd = dataSource.CreateCommand(createTagDataSql.Replace("#tagdata_table#", "data_" + tag.TagName.ToLower()));
+
+                if (tag.IsNumeric)
+                {
+                    cmd = dataSource.CreateCommand(createTagDataNumericSql.Replace("#tagdata_table#", GetTagTableName(tag.TagName)));
+                }
+                else if (tag.DataType == Tag.TagType.Boolean)
+                {
+                    cmd = dataSource.CreateCommand(createTagDataBooleanSql.Replace("#tagdata_table#", GetTagTableName(tag.TagName)));
+                }
+                else 
+                {
+                    cmd = dataSource.CreateCommand(createTagDataStringSql.Replace("#tagdata_table#", GetTagTableName(tag.TagName)));
+                }
+                
                 cmd.ExecuteNonQuery();
             }
+        }
+
+        private static string GetTagTableName(string tagName)
+        {
+            return "data_" + tagName.ToLower();
         }
     }
 }
