@@ -23,11 +23,7 @@ namespace NixDataLogger.Service.Repositories
             db.Dispose();
         }
 
-        public IEnumerable<TagData> Get(DateTime from, DateTime to)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         public IEnumerable<TagData> Get(DateTime from, DateTime to, string tagName)
         {
             throw new NotImplementedException();
