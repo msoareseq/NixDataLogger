@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NixDataLogger.Service
+namespace NixDataLogger.Service.Entities
 {
     public class SystemData
     {
