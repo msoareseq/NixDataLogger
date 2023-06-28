@@ -20,6 +20,7 @@ namespace NixDataLogger.Service
         
         private readonly bool isEnabled;
         private readonly int syncInterval;
+        private bool debugMode;
 
         public SyncWorker(ServiceConfiguration serviceConfiguration, ILogger<SyncWorker> logger)
         {
@@ -30,7 +31,14 @@ namespace NixDataLogger.Service
             
             isEnabled = serviceConfiguration.SyncRemote;
 
-            syncInterval = serviceConfiguration.SyncIntervalHours < 1 ? 1 : serviceConfiguration.SyncIntervalHours;
+            if (serviceConfiguration.SyncIntervalHours < 0)
+            {
+                debugMode = true;
+            }
+            else
+            {
+                syncInterval = serviceConfiguration.SyncIntervalHours < 1 ? 1 : serviceConfiguration.SyncIntervalHours;
+            }
 
             if (serviceConfiguration.RemoteStorageConnectionString == null && isEnabled)
             {
@@ -70,7 +78,14 @@ namespace NixDataLogger.Service
                 }
                 finally
                 {
-                    await Task.Delay(TimeSpan.FromHours(syncInterval), stoppingToken);
+                    if (!debugMode)
+                    {
+                        await Task.Delay(TimeSpan.FromHours(syncInterval), stoppingToken);
+                    }
+                    else
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(60), stoppingToken);
+                    }
                 }
             }
             
@@ -87,11 +102,18 @@ namespace NixDataLogger.Service
             {
                 if (tag.TagName == null) continue;
 
-                int lastId = remoteDataRepository.GetLastId(tag.TagName);
-                var data = localDataRepository.GetAll(tag.TagName!).Where(d => d.TagDataId > lastId).ToList();
-                if (data.Count > 0)
+                try
                 {
-                    remoteDataRepository!.InsertBulk(data, tag.TagName);
+                    DateTime lastTimestamp = remoteDataRepository.GetLastTimestamp(tag.TagName);
+                    var data = localDataRepository.GetAll(tag.TagName).Where(d => d.Timestamp > lastTimestamp).ToList();
+                    if (data.Count > 0)
+                    {
+                        remoteDataRepository.InsertBulk(data, tag.TagName);
+                    }
+                }
+                catch (Exception e)
+                {
+                    logger.LogError(e, "Error syncing data for tag: {tag}", tag.TagName);
                 }
             }
         }
