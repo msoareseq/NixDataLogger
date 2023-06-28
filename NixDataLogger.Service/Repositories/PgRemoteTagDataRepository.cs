@@ -56,6 +56,28 @@ namespace NixDataLogger.Service.Repositories
             return Get(DateTime.MinValue, DateTime.MaxValue, tagName);
         }
 
+        public int GetLastId(string tagName)
+        {
+            string sql = @"SELECT MAX(id) FROM #tablename#";
+            sql = sql.Replace("#tablename#", GetTagTableName(tagName));
+
+            var cmd = dataSource.CreateCommand(sql);
+            var result = cmd.ExecuteScalar();
+            if (result == null || result == DBNull.Value) return 0;
+            else return Convert.ToInt32(result);
+        }
+
+        public DateTime GetLastTimestamp(string tagName)
+        {
+            string sql = @"SELECT MAX(ts) FROM #tablename#";
+            sql = sql.Replace("#tablename#", GetTagTableName(tagName));
+            
+            var cmd = dataSource.CreateCommand(sql);
+            var result = cmd.ExecuteScalar();
+            if (result == null || result == DBNull.Value) return DateTime.MinValue;
+            else return Convert.ToDateTime(result);
+        }
+
         public int Insert(TagData variableData, string tagName)
         {
             string sql = @"INSERT INTO #tablename# (ts, tag_value, quality) VALUES $1, $2, $3";
@@ -184,5 +206,6 @@ namespace NixDataLogger.Service.Repositories
         {
             return "data_" + tagName.ToLower();
         }
+                
     }
 }

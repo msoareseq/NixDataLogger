@@ -34,6 +34,22 @@ namespace NixDataLogger.Service.Repositories
             return col.FindAll();
         }
 
+        public int GetLastId(string tagName)
+        {
+            var col = db.GetCollection<TagData>(tagName);
+            var last = col.FindAll().OrderByDescending(x => x.TagDataId).FirstOrDefault();
+            if (last == null) return 0;
+            else return last.TagDataId;
+        }
+
+        public DateTime GetLastTimestamp(string tagName)
+        {
+            var col = db.GetCollection<TagData>(tagName);
+            var last = col.FindAll().OrderByDescending(x => x.Timestamp).FirstOrDefault();
+            if (last == null) return DateTime.MinValue;
+            else return last.Timestamp;
+        }
+
         public int Insert(TagData variableData, string tagName)
         {
             var col = db.GetCollection<TagData>(tagName);
