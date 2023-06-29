@@ -175,21 +175,21 @@ namespace NixDataLogger.Service.Repositories
 
             string createTagDataNumericSql = @"CREATE TABLE IF NOT EXISTS #tagdata_table# (
                                         id BIGSERIAL PRIMARY KEY,
-                                        ts TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+                                        ts TIMESTAMP WITH TIME ZONE NOT NULL,
                                         tag_value NUMERIC,
                                         tag_quality INT NOT NULL
                                         )";
 
             string createTagDataStringSql = @"CREATE TABLE IF NOT EXISTS #tagdata_table# (
                                         id BIGSERIAL PRIMARY KEY,
-                                        ts TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+                                        ts TIMESTAMP WITH TIME ZONE NOT NULL,
                                         tag_value VARCHAR(50),
                                         tag_quality INT NOT NULL
                                         )";
 
             string createTagDataBooleanSql = @"CREATE TABLE IF NOT EXISTS #tagdata_table# (
                                         id BIGSERIAL PRIMARY KEY,
-                                        ts TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+                                        ts TIMESTAMP WITH TIME ZONE NOT NULL,
                                         tag_value NUMERIC,
                                         tag_quality INT NOT NULL
                                         )";
