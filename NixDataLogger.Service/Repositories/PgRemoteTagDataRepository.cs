@@ -15,7 +15,23 @@ namespace NixDataLogger.Service.Repositories
 
         public PgRemoteTagDataRepository(string connectionString, IEnumerable<Tag> tagList)
         {
-            dataSource = NpgsqlDataSource.Create(connectionString);
+            NpgsqlConnectionStringBuilder builder = new NpgsqlConnectionStringBuilder();
+
+            if (Uri.TryCreate(connectionString, UriKind.Absolute, out var url))
+            {
+                builder.Host = url.Host;
+                builder.Port = url.IsDefaultPort ? 5432 : url.Port;
+                builder.Username = url.UserInfo.Split(':')[0];
+                builder.Password = url.UserInfo.Split(':')[1];
+                builder.Database = url.AbsolutePath.TrimStart('/');
+            }
+            else
+            {
+                builder.ConnectionString = connectionString;
+            }
+            
+            dataSource = NpgsqlDataSource.Create(builder);
+            
             this.tagList = tagList.ToList();
 
             CreateTables();
@@ -80,13 +96,13 @@ namespace NixDataLogger.Service.Repositories
 
         public int Insert(TagData variableData, string tagName)
         {
-            string sql = @"INSERT INTO #tablename# (ts, tag_value, quality) VALUES $1, $2, $3";
+            string sql = @"INSERT INTO #tablename# (ts, tag_value, tag_quality) VALUES ($1, $2, $3)";
             sql = sql.Replace("#tablename#", GetTagTableName(tagName));
 
             var cmd = dataSource.CreateCommand(sql);
-            cmd.Parameters.Add(variableData.Timestamp);
-            cmd.Parameters.Add(variableData.Value ?? DBNull.Value);
-            cmd.Parameters.Add(variableData.QualityCode);
+            cmd.Parameters.Add(new NpgsqlParameter<DateTime>() { TypedValue = variableData.Timestamp });
+            cmd.Parameters.Add(GetTypedParameter(variableData));
+            cmd.Parameters.Add(new NpgsqlParameter<int>() { TypedValue = variableData.QualityCode });
 
             return cmd.ExecuteNonQuery();
         }
@@ -97,14 +113,14 @@ namespace NixDataLogger.Service.Repositories
             
             foreach (var data in variableData)
             {
-                string sql = @"INSERT INTO #tablename# (ts, tag_value, quality) VALUES $1, $2, $3";
+                
+                string sql = @"INSERT INTO #tablename# (ts, tag_value, tag_quality) VALUES ($1, $2, $3)";
                 sql = sql.Replace("#tablename#", GetTagTableName(tagName));
-                
                 var batchCmd = new NpgsqlBatchCommand(sql);
-                batchCmd.Parameters.Add(data.Timestamp);
-                batchCmd.Parameters.Add(data.Value ?? DBNull.Value);
-                batchCmd.Parameters.Add(data.QualityCode);
-                
+                batchCmd.Parameters.Add(new NpgsqlParameter<DateTime>() { TypedValue = data.Timestamp });
+                batchCmd.Parameters.Add(GetTypedParameter(data));
+                batchCmd.Parameters.Add(new NpgsqlParameter<int>() { TypedValue = data.QualityCode });
+                                
                 batch.BatchCommands.Add(batchCmd);
             }
 
@@ -205,6 +221,26 @@ namespace NixDataLogger.Service.Repositories
         private static string GetTagTableName(string tagName)
         {
             return "data_" + tagName.ToLower();
+        }
+
+        private NpgsqlParameter GetTypedParameter(TagData tagData)
+        {
+            Tag tag = tagList.FirstOrDefault(t => t.TagName == tagData.TagName)!;
+
+            if (tag == null) return new NpgsqlParameter() { Value = null };
+
+            if (tag.IsNumeric)
+            {
+                return new NpgsqlParameter<double>() { TypedValue = Convert.ToDouble(tagData.Value) };
+            }
+            else if (tag.DataType == Tag.TagType.Boolean)
+            {
+                return new NpgsqlParameter<bool>() { TypedValue = Convert.ToBoolean(tagData.Value) };
+            }
+            else
+            {
+                return new NpgsqlParameter<string>() { TypedValue = Convert.ToString(tagData.Value) };
+            }
         }
                 
     }

@@ -1,4 +1,5 @@
-﻿using NixDataLogger.Service.Entities;
+﻿using Microsoft.Extensions.Options;
+using NixDataLogger.Service.Entities;
 using NixDataLogger.Service.Repositories;
 using System;
 using System.Collections.Generic;
@@ -17,30 +18,32 @@ namespace NixDataLogger.Service
         private readonly ILogger<SyncWorker> logger;
         private readonly ITagRepository tagRepository;
         private readonly List<Tag>? tagList;
-        
+        private readonly ServiceConfiguration serviceConfiguration;
+
         private readonly bool isEnabled;
         private readonly int syncInterval;
         private bool debugMode;
 
-        public SyncWorker(ServiceConfiguration serviceConfiguration, ILogger<SyncWorker> logger)
+        public SyncWorker(ILogger<SyncWorker> logger, IOptions<ServiceConfiguration> serviceConfiguration)
         {
+            this.serviceConfiguration = serviceConfiguration.Value;
             this.logger = logger;
             
-            tagRepository = new TagRepository(serviceConfiguration);
+            tagRepository = new TagRepository(this.serviceConfiguration);
             tagList = tagRepository.GetTagList()!.ToList();
             
-            isEnabled = serviceConfiguration.SyncRemote;
+            isEnabled = this.serviceConfiguration.SyncRemote;
 
-            if (serviceConfiguration.SyncIntervalHours < 0)
+            if (this.serviceConfiguration.SyncIntervalHours < 0)
             {
                 debugMode = true;
             }
             else
             {
-                syncInterval = serviceConfiguration.SyncIntervalHours < 1 ? 1 : serviceConfiguration.SyncIntervalHours;
+                syncInterval = this.serviceConfiguration.SyncIntervalHours < 1 ? 1 : this.serviceConfiguration.SyncIntervalHours;
             }
 
-            if (serviceConfiguration.RemoteStorageConnectionString == null && isEnabled)
+            if (this.serviceConfiguration.RemoteStorageConnectionString == null && isEnabled)
             {
                 isEnabled = false;
                 logger.LogError("Remote storage connection string not found. Remote Sync disabled.");
@@ -50,10 +53,10 @@ namespace NixDataLogger.Service
                 isEnabled = false;
                 logger.LogWarning("No tags found. Remote Sync disabled.");
             }
-            else if (isEnabled && serviceConfiguration.RemoteStorageConnectionString != null && tagList != null && tagList.Count > 0)
+            else if (isEnabled && this.serviceConfiguration.RemoteStorageConnectionString != null && tagList != null && tagList.Count > 0)
             {
-                remoteDataRepository = new PgRemoteTagDataRepository(serviceConfiguration.RemoteStorageConnectionString, tagList);
-                localDataRepository = new LocalVariableDataRepository(serviceConfiguration.LocalStorageConnectionString!);
+                remoteDataRepository = new PgRemoteTagDataRepository(this.serviceConfiguration.RemoteStorageConnectionString, tagList);
+                localDataRepository = new LocalVariableDataRepository(this.serviceConfiguration.LocalStorageConnectionString!);
             }
             else
             {
