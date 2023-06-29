@@ -18,7 +18,7 @@ namespace NixDataLogger.Service.Clients
                 {
                     TagName = tag.TagName,
                     Value = GenerateRandomValue(tag),
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     QualityCode = 1,                     
                 };
             }
