@@ -60,7 +60,7 @@ namespace NixDataLogger.Service
                 {
                     var resultData = ReadTagData();
                     SaveLocalData(resultData);
-
+                    _logger.LogInformation("Read and saved {count} tags", resultData.Count());
                 }
                 catch (Exception ex)
                 {
