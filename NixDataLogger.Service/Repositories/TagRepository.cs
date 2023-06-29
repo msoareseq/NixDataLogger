@@ -30,7 +30,7 @@ namespace NixDataLogger.Service.Repositories
             {
                 if (tag.StartsWith("#")) continue;
                 string[] tagParts = tag.Split(',');
-                if (tagParts.Length != 4) continue;
+                if (tagParts.Length != 6) continue;
 
                 Tag tagResult = new Tag()
                 {

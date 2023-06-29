@@ -130,12 +130,23 @@ namespace NixDataLogger.Service.Repositories
 
         public int RemoveAll()
         {
-            throw new NotImplementedException();
+            int count = 0;
+
+            foreach (var tag in tagList)
+            {
+                count += RemoveByTagName(tag.TagName!);
+            }
+
+            return count;
         }
 
         public int RemoveById(int id, string tagName)
         {
-            throw new NotImplementedException();
+            string sql = @"DELETE FROM #tablename# WHERE id = $1";
+            sql = sql.Replace("#tablename#", GetTagTableName(tagName));
+            var cmd = dataSource.CreateCommand(sql);
+            cmd.Parameters.Add(new NpgsqlParameter<int> { TypedValue = id });
+            return cmd.ExecuteNonQuery();
         }
 
         public int RemoveByIds(IEnumerable<int> ids, string tagName)
@@ -153,12 +164,22 @@ namespace NixDataLogger.Service.Repositories
 
         public int RemovePeriod(DateTime from, DateTime to)
         {
-            throw new NotImplementedException();
+            int count = 0;
+            foreach (var tag in tagList)
+            {
+                count += RemovePeriod(from, to, tag.TagName!);
+            }
+            return count;
         }
 
         public int RemovePeriod(DateTime from, DateTime to, string tagName)
         {
-            throw new NotImplementedException();
+            string sql = @"DELETE FROM #tablename# WHERE ts >= $1 AND ts <= $2";
+            sql = sql.Replace("#tablename#", GetTagTableName(tagName));
+            var cmd = dataSource.CreateCommand(sql);
+            cmd.Parameters.Add(new NpgsqlParameter<DateTime> { TypedValue = from.ToUniversalTime() });
+            cmd.Parameters.Add(new NpgsqlParameter<DateTime> { TypedValue = to.ToUniversalTime() });
+            return cmd.ExecuteNonQuery();
         }
 
         public void Save()
@@ -169,14 +190,14 @@ namespace NixDataLogger.Service.Repositories
         private void CreateTables()
         {
             string createTagListSql = @"CREATE TABLE IF NOT EXISTS taglist (
-                                        taglist_id SERIAL PRIMARY KEY,
+                                        id SERIAL PRIMARY KEY,
                                         name VARCHAR(250) NOT NULL,
                                         description VARCHAR(250),
                                         unit VARCHAR(20),
                                         address VARCHAR(250),
                                         tag_group VARCHAR(250) NOT NULL,
                                         tag_type INT NOT NULL,
-                                        tag_data_table VARCHAR(250) NOT NULL,
+                                        tag_data_table VARCHAR(250) NOT NULL
                                         )";
 
             string createTagDataNumericSql = @"CREATE TABLE IF NOT EXISTS #tagdata_table# (
@@ -196,12 +217,13 @@ namespace NixDataLogger.Service.Repositories
             string createTagDataBooleanSql = @"CREATE TABLE IF NOT EXISTS #tagdata_table# (
                                         id BIGSERIAL PRIMARY KEY,
                                         ts TIMESTAMP WITH TIME ZONE NOT NULL,
-                                        tag_value NUMERIC,
+                                        tag_value BOOLEAN,
                                         tag_quality INT NOT NULL
                                         )";
 
             var cmd = dataSource.CreateCommand(createTagListSql);
             cmd.ExecuteNonQuery();
+            PopulateTagList();
 
             foreach (var tag in tagList)
             {
