@@ -63,7 +63,7 @@ namespace NixDataLogger.Service.Clients
                     yield return new TagData()
                     {
                         TagName = tags.First(x => x.Address == result.Id).TagName,
-                        Timestamp = DateTime.Now,
+                        Timestamp = DateTime.UtcNow,
                         QualityCode = (result.Success ? 1 : 0),
                         Value = result.Value,
                     };
