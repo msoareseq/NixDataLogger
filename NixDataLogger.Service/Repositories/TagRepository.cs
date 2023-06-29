@@ -37,7 +37,10 @@ namespace NixDataLogger.Service.Repositories
                     TagName = tagParts[0].Trim(),
                     Address = tagParts[1].Trim(),
                     Group = tagParts[2].Trim(),
+                    Unit = tagParts[4].Trim(),
+                    Description = tagParts[5].Trim(),
                 };
+                
                 tagResult.ParseTagType(tagParts[3].Trim());
 
                 yield return tagResult;

@@ -3,12 +3,12 @@
 #
 # 
 #
-# Variable Name, Address, Group, Type
-Variable1,TestChannel.TestDevice.TestReadDouble, Group1, Double
-Variable2,TestChannel.TestDevice.TestReadFloat, Group1, Float
-Variable3,TestChannel.TestDevice.TestReadLong, Group1, Integer
-Variable4,TestChannel.TestDevice.TestReadWord, Group1, Integer
-Variable5,TestChannel.TestDevice.TestWriteDouble, Group2, Double
-Variable6,TestChannel.TestDevice.TestWriteFloat, Group2, Float
-Variable7,TestChannel.TestDevice.TestWriteLong, Group2, Integer
-Variable8,TestChannel.TestDevice.TestWriteWord, Group2, Integer
+# Variable Name, Address, Group, Type, Unit, Description
+Variable1,TestChannel.TestDevice.TestReadDouble, Group1, Double,%, Test Variable 1
+Variable2,TestChannel.TestDevice.TestReadFloat, Group1, Float,%, Test Variable 2
+Variable3,TestChannel.TestDevice.TestReadLong, Group1, Integer,%, Test Variable 3
+Variable4,TestChannel.TestDevice.TestReadWord, Group1, Integer,%, Test Variable 4
+Variable5,TestChannel.TestDevice.TestWriteDouble, Group2, Double,%, Test Variable 5
+Variable6,TestChannel.TestDevice.TestWriteFloat, Group2, Float,%, Test Variable 6
+Variable7,TestChannel.TestDevice.TestWriteLong, Group2, Integer,%, Test Variable 7
+Variable8,TestChannel.TestDevice.TestWriteWord, Group2, Integer,%, Test Variable 8

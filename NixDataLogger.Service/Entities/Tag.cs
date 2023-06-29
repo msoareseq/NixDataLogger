@@ -15,6 +15,8 @@ namespace NixDataLogger.Service.Entities
         public string? Address { get; set; }
         public string? Group { get; set; }
         public TagType DataType { get; set; }
+        public string? Unit { get; set; }
+        public string? Description { get; set; }
 
         public bool IsNumeric
         {

@@ -145,7 +145,10 @@ namespace NixDataLogger.Service.Repositories
 
         public int RemoveByTagName(string tagName)
         {
-            throw new NotImplementedException();
+            string sql = @"TRUNCATE TABLE #tablename# RESTART IDENTITY";
+            sql = sql.Replace("#tablename#", GetTagTableName(tagName));
+            var cmd = dataSource.CreateCommand(sql);
+            return cmd.ExecuteNonQuery();
         }
 
         public int RemovePeriod(DateTime from, DateTime to)
@@ -168,9 +171,12 @@ namespace NixDataLogger.Service.Repositories
             string createTagListSql = @"CREATE TABLE IF NOT EXISTS taglist (
                                         taglist_id SERIAL PRIMARY KEY,
                                         name VARCHAR(250) NOT NULL,
+                                        description VARCHAR(250),
+                                        unit VARCHAR(20),
                                         address VARCHAR(250),
                                         tag_group VARCHAR(250) NOT NULL,
-                                        tag_type INT NOT NULL
+                                        tag_type INT NOT NULL,
+                                        tag_data_table VARCHAR(250) NOT NULL,
                                         )";
 
             string createTagDataNumericSql = @"CREATE TABLE IF NOT EXISTS #tagdata_table# (
@@ -240,6 +246,27 @@ namespace NixDataLogger.Service.Repositories
             else
             {
                 return new NpgsqlParameter<string>() { TypedValue = Convert.ToString(tagData.Value) };
+            }
+        }
+
+        private void PopulateTagList()
+        {
+            string sql = @"TRUNCATE TABLE taglist RESTART IDENTITY";
+            var cmd = dataSource.CreateCommand(sql);
+            cmd.ExecuteNonQuery();
+
+            foreach (var tag in tagList)
+            {
+                sql = @"INSERT INTO taglist (name, address, tag_group, tag_type, tag_data_table, unit, description) VALUES ($1, $2, $3, $4, $5, $6, $7)";
+                cmd = dataSource.CreateCommand(sql);
+                cmd.Parameters.Add(new NpgsqlParameter<string>() { TypedValue = tag.TagName });
+                cmd.Parameters.Add(new NpgsqlParameter<string>() { TypedValue = tag.Address });
+                cmd.Parameters.Add(new NpgsqlParameter<string>() { TypedValue = tag.Group });
+                cmd.Parameters.Add(new NpgsqlParameter<int>() { TypedValue = (int)tag.DataType });
+                cmd.Parameters.Add(new NpgsqlParameter<string>() { TypedValue = GetTagTableName(tag.TagName!) });
+                cmd.Parameters.Add(new NpgsqlParameter<string>() { TypedValue = tag.Unit });
+                cmd.Parameters.Add(new NpgsqlParameter<string>() { TypedValue = tag.Description });
+                cmd.ExecuteNonQuery();
             }
         }
                 
