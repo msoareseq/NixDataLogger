@@ -69,8 +69,8 @@ namespace NixDataLogger.Service
                 logger.LogInformation("Start syncing data...");
                 try
                 {
-                    SyncData();
-                    logger.LogInformation("Data sync completed!");
+                    int count = SyncData();
+                    logger.LogInformation("Data sync completed! {count} inserts.", count);
                 }
                 catch (Exception e)
                 {
@@ -90,12 +90,14 @@ namespace NixDataLogger.Service
             }
             
         }
-        private void SyncData()
+        private int SyncData()
         {
+            int count = 0;
+
             if (remoteDataRepository == null || localDataRepository == null || tagList == null)
             {
                 logger.LogError("Repository configuration or tag list is null!");
-                return;
+                return 0;
             }
 
             foreach (var tag in tagList)
@@ -108,14 +110,17 @@ namespace NixDataLogger.Service
                     var data = localDataRepository.GetAll(tag.TagName).Where(d => d.Timestamp > lastTimestamp).ToList();
                     if (data.Count > 0)
                     {
-                        remoteDataRepository.InsertBulk(data, tag.TagName);
+                        count += remoteDataRepository.InsertBulk(data, tag.TagName);
                     }
                 }
                 catch (Exception e)
                 {
                     logger.LogError(e, "Error syncing data for tag: {tag}", tag.TagName);
                 }
+                                
             }
+
+            return count;
         }
 
     }
