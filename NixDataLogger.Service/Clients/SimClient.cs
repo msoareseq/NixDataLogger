@@ -14,6 +14,8 @@ namespace NixDataLogger.Service.Clients
         {
             foreach (var tag in tags)
             {
+                if (string.IsNullOrEmpty(tag.Address)) continue;
+
                 yield return new TagData()
                 {
                     TagName = tag.TagName,

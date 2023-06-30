@@ -45,6 +45,8 @@ namespace NixDataLogger.Service.Clients
 
                 foreach (Tag tag in group)
                 {
+                    if (string.IsNullOrEmpty(tag.Address)) continue;
+
                     request.AddParameter("ids", tag.Address);
                 }
 

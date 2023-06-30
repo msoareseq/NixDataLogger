@@ -1,9 +1,9 @@
 using Microsoft.Extensions.Options;
-using Microsoft.VisualBasic;
 using NixDataLogger.Service.Clients;
 using NixDataLogger.Service.Entities;
 using NixDataLogger.Service.Repositories;
-using System.Diagnostics;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace NixDataLogger.Service
 {
@@ -90,6 +90,41 @@ namespace NixDataLogger.Service
         private IEnumerable<TagData> ReadTagData()
         {
             return apiClient.GetTagData(tagList);
+        }
+
+        private int CheckInputFiles()
+        {
+            int count = 0;
+            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string[] files = Directory.GetFiles(Path.Combine(baseDirectory, @"\input"), "*.nif");
+            _logger.LogInformation("Found {count} input files. Importing...", files.Length);
+            
+            List<TagData> tagDataList = new List<TagData>();
+
+            foreach (string file in files)
+            {
+                string data = File.ReadAllText(file);
+
+                try
+                {
+                    var tagData = JsonSerializer.Deserialize<TagData>(data);
+
+                    if (tagData != null)
+                    {
+                        tagDataList.Add(tagData);
+                        count++;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error reading file: {file}. File will be discarded.", file);
+                    
+                }
+                finally
+                {
+                    File.Delete(file);
+                }
+            }
         }
     }
 }
