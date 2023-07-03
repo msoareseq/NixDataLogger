@@ -61,6 +61,14 @@ namespace NixDataLogger.Service
                     var resultData = ReadTagData();
                     SaveLocalData(resultData);
                     _logger.LogInformation("Read and saved {count} tags", resultData.Count());
+                    
+                    var fileData = ReadInputFiles();
+                    if (fileData.Any())
+                    {
+                        _logger.LogInformation("Read {count} tags from input files", fileData.Count());
+                        SaveLocalData(fileData);
+                    }
+
                 }
                 catch (Exception ex)
                 {
@@ -83,8 +91,9 @@ namespace NixDataLogger.Service
             foreach (TagData data in tagData)
             {
                 dataRepository.Insert(data, data.TagName!);
-                dataRepository.Save();
             }
+            
+            dataRepository.Save();
         }
 
         private IEnumerable<TagData> ReadTagData()
@@ -92,9 +101,8 @@ namespace NixDataLogger.Service
             return apiClient.GetTagData(tagList);
         }
 
-        private int CheckInputFiles()
+        private IEnumerable<TagData> ReadInputFiles()
         {
-            int count = 0;
             string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
             string[] files = Directory.GetFiles(Path.Combine(baseDirectory, @"\input"), "*.nif");
             _logger.LogInformation("Found {count} input files. Importing...", files.Length);
@@ -112,7 +120,6 @@ namespace NixDataLogger.Service
                     if (tagData != null)
                     {
                         tagDataList.Add(tagData);
-                        count++;
                     }
                 }
                 catch (Exception ex)
@@ -122,9 +129,13 @@ namespace NixDataLogger.Service
                 }
                 finally
                 {
-                    File.Delete(file);
+                    File.Delete(file);                    
                 }
+
             }
+            
+            return tagDataList;
+                       
         }
     }
 }
