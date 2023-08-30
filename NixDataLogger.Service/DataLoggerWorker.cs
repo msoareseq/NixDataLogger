@@ -104,7 +104,15 @@ namespace NixDataLogger.Service
         private IEnumerable<TagData> ReadInputFiles()
         {
             string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            string[] files = Directory.GetFiles(Path.Combine(baseDirectory, @"\input"), "*.nif");
+            string inputDirectory = Path.Combine(baseDirectory, @"input\");
+
+            if (!Directory.Exists(inputDirectory))
+            {
+                _logger.LogInformation("Input directory does not exist. Creating...");
+                Directory.CreateDirectory(inputDirectory);
+            }
+            
+            string[] files = Directory.GetFiles(Path.Combine(baseDirectory, @"input\"), "*.nif");
             _logger.LogInformation("Found {count} input files. Importing...", files.Length);
             
             List<TagData> tagDataList = new List<TagData>();
