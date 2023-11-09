@@ -10,6 +10,9 @@ namespace NixDataLogger.Service
             string configFileName = "nix.json";
             ServiceConfiguration serviceConfig;
 
+
+
+
             
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.File("logs\\log.txt", rollingInterval: RollingInterval.Day)
