@@ -11,6 +11,17 @@ namespace NixDataLogger.Service
             string? baseDir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             string defaultDir = @"C:\Nix\";
 
+            if (baseDir is null)
+            {
+                baseDir = defaultDir;
+            }
+
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.File(Path.Combine(baseDir ?? defaultDir, "logs\\log.txt"), rollingInterval: RollingInterval.Day)
+                .WriteTo.Console(theme: AnsiConsoleTheme.Code)
+                .CreateLogger();
+
+
             if (WindowsServiceHelpers.IsWindowsService())
             {
                 Log.Information("Running as a Windows Service");
@@ -23,16 +34,6 @@ namespace NixDataLogger.Service
 
             string configFileName = Path.Combine(baseDir ?? defaultDir, "nix.json");
             ServiceConfiguration serviceConfig;
-
-
-
-
-            
-            Log.Logger = new LoggerConfiguration()
-                .WriteTo.File(Path.Combine(baseDir ?? defaultDir, "logs\\log.txt"), rollingInterval: RollingInterval.Day)
-                .WriteTo.Console(theme: AnsiConsoleTheme.Code)
-                .CreateLogger();
-
             
 
             try
@@ -49,7 +50,7 @@ namespace NixDataLogger.Service
                 IHost host = Host.CreateDefaultBuilder(args)
                     .ConfigureServices(services =>
                     {
-                        services.Configure<ServiceConfiguration>(config => config.LoadFromFile("nix.json"));
+                        services.Configure<ServiceConfiguration>(config => config.LoadFromFile(configFileName));
                         services.AddHostedService<DataLoggerWorker>();
                         services.AddHostedService<SyncWorker>();
                     })
