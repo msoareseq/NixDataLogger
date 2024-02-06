@@ -61,19 +61,26 @@ namespace NixDataLogger.Service
                     var resultData = ReadTagData();
                     SaveLocalData(resultData);
                     _logger.LogInformation("Read and saved {count} tags", resultData.Count());
-                    
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error reading and writing tags");                    
+                }
+
+                try
+                {
                     var fileData = ReadInputFiles();
                     if (fileData.Any())
                     {
                         _logger.LogInformation("Read {count} tags from input files", fileData.Count());
                         SaveLocalData(fileData);
                     }
-
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error reading and writing tags");                    
+                    _logger.LogError(ex, "Error reading and writing tags from input files");
                 }
+
 
                 await Task.Delay(serviceConfiguration.DataReadIntervalSeconds * 1000, stoppingToken);
             }
@@ -127,7 +134,16 @@ namespace NixDataLogger.Service
 
                     if (tagData != null)
                     {
-                        tagDataList.Add(tagData);
+                        // Just import float values
+                        if (tagData.Value != null && float.TryParse(tagData.Value.ToString(), out float result))
+                        { 
+                            tagData.Value = result;
+                            tagDataList.Add(tagData);
+                        }
+                        else
+                        {
+                            _logger.LogWarning("Not numeric value in file: {file}. File will be discarded.", file);
+                        }
                     }
                 }
                 catch (Exception ex)
